@@ -1,126 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Foot</title>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.4.2/tabletop.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
+    <title>Foot</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.4.2/tabletop.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <div class="row">
-      <div class="col-xs-8">
-        <div class="row">
-          <div class="col-xs-12">
-            <h2>Prochain match : <span id="next_match"></span> à 21h30</h2>
-          </div>
+        <div class="col-xs-8">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2>Prochain match : <span id="next_match"></span> à 21h30</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2>Dernier match : <span id="previous_match"></span></h2>
+                    <table id="dernier_match" class="table table-hover table-bordered table-condensed">
+                        <thead>
+                        <tr>
+                            <th class="success">Victoire</th>
+                            <th class="danger">Défaite</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="row">
-          <div class="col-xs-12">
-            <h2>Dernier match : <span id="previous_match"></span></h2>
-            <table id="dernier_match" class="table table-hover table-bordered table-condensed">
-            <thead>
-              <tr>
-                <th class="success">Victoire</th>
-                <th class="danger">Défaite</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
+        <div class="col-xs-4">
+            <h2>Classement</h2>
+            <table id="classement" class="table table-hover table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Joueur</th>
+                    <th>V</th>
+                    <th>D</th>
+                    <th>N</th>
+                    <th>P</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
             </table>
-          </div>
         </div>
-      </div>
-      <div class="col-xs-4">
-        <h2>Classement</h2>
-        <table id="classement" class="table table-hover table-striped table-condensed">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Joueur</th>
-            <th>V</th>
-            <th>D</th>
-            <th>P</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        </table>
-      </div>
     </div>
     <div class="row">
-      <div class="col-xs-12">
-        <h2>Historique</h2>
-        <table id="historique" class="table table-hover table-bordered table-striped table-condensed">
-        <thead>
-        </thead>
-        <tbody>
-        </tbody>
-        </table>
-      </div>
+        <div class="col-xs-12">
+            <h2>Historique</h2>
+            <table id="historique" class="table table-hover table-bordered table-striped table-condensed">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
-  <script type="text/javascript">
-  $(function() {
-    var URL = "https://docs.google.com/spreadsheets/d/1z3boFpkub-nrpc6DSaMCGo6pa7bjdFrl726tJTHWdZ4/pubhtml"
-    Tabletop.init({key: URL, callback: callback, simpleSheet: true});
-  });
-  
-  function callback(data) {
-    var resultats = _.chain(data)
-    .map(function(d) {
-      var stats = _.chain(d).omit("Joueurs").values().groupBy().value();
-      var nb_victoires = (stats["V"] || []).length;
-      var nb_defaites = (stats["D"] || []).length;
-      return {
-        nom: d["Joueurs"],
-        nb_victoires: nb_victoires,
-        nb_defaites: nb_defaites,
-        points: nb_victoires*3 + nb_defaites*-3,
-        historique: _.chain(d).omit("Joueurs").values().map(function(d) { return _.includes(["D", "V"], d) ? d : ""; }).value()
-      };
-    })
-    .sortBy("nom")
-    .value();
-    
-    // Classement
-    var classement = _.chain(resultats).orderBy(["points", "nb_victoires", "nb_defaites", "nom"], ["desc", "desc", "acs", "acs"]).value();
-    $("#classement tbody").html(_.map(classement, function(d, i) {
-      var classes = i === 0 ? "warning" : "";
-      return "<tr class='" + classes + "'><th>"+(i+1)+"</th><td>"+d.nom+"</td><td>"+d.nb_victoires+"</td><td>"+d.nb_defaites+"</td><td>"+d.points+"</td></tr>"
-    }));
-    
-    // Historique
-    var dates = _.chain(data[0]).omit("Joueurs").keys()
+</div>
+<script type="text/javascript">
+    $(function() {
+        var URL = "https://docs.google.com/spreadsheets/d/1z3boFpkub-nrpc6DSaMCGo6pa7bjdFrl726tJTHWdZ4/pubhtml"
+        Tabletop.init({key: URL, callback: callback, simpleSheet: true});
+    });
+
+    function callback(data) {
+        var resultats = _.chain(data)
+                .map(function(d) {
+                    var stats = _.chain(d).omit("Joueurs").values().groupBy().value();
+                    var nb_victoires = (stats["V"] || []).length;
+                    var nb_defaites = (stats["D"] || []).length;
+                    var nb_nuls = (stats["N1"] || []).length + (stats["N2"] || []).length;
+                    return {
+                        nom: d["Joueurs"],
+                        nb_victoires: nb_victoires,
+                        nb_defaites: nb_defaites,
+                        nb_nuls: nb_nuls,
+                        points: nb_victoires*3 + nb_defaites*-3 + nb_nuls,
+                        historique: _.chain(d).omit("Joueurs").values().map(function(d) { return _.includes(["D", "V", "N1", "N2"], d) ? d : ""; }).value()
+                    };
+                })
+                .sortBy("nom")
+                .value();
+
+        // Classement
+        var classement = _.chain(resultats).orderBy(["points", "nb_victoires", "nb_defaites", "nom"], ["desc", "desc", "acs", "acs"]).value();
+        $("#classement tbody").html(_.map(classement, function(d, i) {
+            var classes = i === 0 ? "warning" : "";
+            return "<tr class='" + classes + "'><th>"+(i+1)+"</th><td>"+d.nom+"</td><td>"+d.nb_victoires+"</td><td>"+d.nb_defaites+"</td><td>"+d.nb_nuls+"</td><td>"+d.points+"</td></tr>"
+        }));
+
+        // Historique
+        var dates = _.chain(data[0]).omit("Joueurs").keys()
                 .map(function(d) { return moment(d, "DD/MM/YYYY"); }).sortBy()
                 .map(function(d) { return d.format("DD/MM/YYYY"); }).value();
-    $("#historique thead").html("<tr><th>Joueur</th>" + _.chain(dates).map(function(d) { return "<th>" + d + "</th>"; }).value() + "</tr>");
-    $("#historique tbody").html(_.chain(resultats).map(function(d) {
-      var historique = _.chain(d.historique).map(function(score) { return "<td>" + score + "</td>"}).join("");
-      return "<tr><td>" + d.nom + "</td>" + historique + "</tr>";
-    }).value());
-    
-    // Dernier match
-    var previous_match = _.last(dates);
-    $("#previous_match").html(previous_match);
-    
-    var joueurs_dernier_match = _.chain(data)
-    .filter(function(d) { return _.includes(["D", "V"], d[previous_match]); }).value();
-    var gagnants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "V"; }).sortBy("Joueurs").value();
-    var perdants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "D"; }).sortBy("Joueurs").value();
-    for(var i = 0; i < gagnants.length; i++) {
-      $("#dernier_match tbody").append("<tr><td>" + gagnants[i]["Joueurs"] + "</td><td>" + perdants[i]["Joueurs"] + "</td></tr>")
+        $("#historique thead").html("<tr><th>Joueur</th>" + _.chain(dates).map(function(d) { return "<th>" + d + "</th>"; }).value() + "</tr>");
+        $("#historique tbody").html(_.chain(resultats).map(function(d) {
+            var historique = _.chain(d.historique).map(function(score) { return "<td>" + score.replace("N1", "N").replace("N2", "N") + "</td>"}).join("");
+            return "<tr><td>" + d.nom + "</td>" + historique + "</tr>";
+        }).value());
+
+        // Dernier match
+        var previous_match = _.last(dates);
+        $("#previous_match").html(previous_match);
+
+        var joueurs_dernier_match = _.chain(data)
+                .filter(function(d) { return _.includes(["D", "V", "N1", "N2"], d[previous_match]); }).value();
+        var type_resultat = _.chain(joueurs_dernier_match)
+                .map(function(d) { return d[previous_match]; }).value();
+        if (_.includes(type_resultat, "N1")) {
+            var nul1 = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "N1"; }).sortBy("Joueurs").value();
+            var nul2 = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "N2"; }).sortBy("Joueurs").value();
+            $("#dernier_match thead").html("<tr class='info'><th>Nul</th><th>Nul</th></tr>")
+            for(var i = 0; i < nul1.length; i++) {
+                $("#dernier_match tbody").append("<tr><td>" + nul1[i]["Joueurs"] + "</td><td>" + nul2[i]["Joueurs"] + "</td></tr>")
+            }
+        } else {
+            var gagnants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "V"; }).sortBy("Joueurs").value();
+            var perdants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "D"; }).sortBy("Joueurs").value();
+            for(var i = 0; i < gagnants.length; i++) {
+                $("#dernier_match tbody").append("<tr><td>" + gagnants[i]["Joueurs"] + "</td><td>" + perdants[i]["Joueurs"] + "</td></tr>")
+            }
+        }
+
+        // Prochain match
+        var next_match = moment(previous_match, "DD/MM/YYYY").add(7, 'days').format("DD/MM/YYYY");
+        $("#next_match").html(next_match);
+
     }
-    
-    // Prochain match
-    var next_match = moment(previous_match, "DD/MM/YYYY").add(7, 'days').format("DD/MM/YYYY");
-    $("#next_match").html(next_match);
-    
-  }
-  </script>
+</script>
 
 </body>
 </html>
