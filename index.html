@@ -124,8 +124,8 @@
         } else {
             var gagnants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "V"; }).sortBy("Joueurs").value();
             var perdants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "D"; }).sortBy("Joueurs").value();
-            for(var i = 0; i < gagnants.length; i++) {
-                $("#dernier_match tbody").append("<tr><td>" + gagnants[i]["Joueurs"] + "</td><td>" + perdants[i]["Joueurs"] + "</td></tr>")
+            for(var i = 0; i < Math.max(gagnants.length, perdants.length); i++) {
+                $("#dernier_match tbody").append("<tr><td>" + gagnants[i]["Joueurs"] || "" + "</td><td>" + perdants[i]["Joueurs"] || "" + "</td></tr>")
             }
         }
 
