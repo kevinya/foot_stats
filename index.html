@@ -125,7 +125,9 @@
             var gagnants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "V"; }).sortBy("Joueurs").value();
             var perdants = _.chain(joueurs_dernier_match).filter(function(d) { return d[previous_match] == "D"; }).sortBy("Joueurs").value();
             for(var i = 0; i < Math.max(gagnants.length, perdants.length); i++) {
-                $("#dernier_match tbody").append("<tr><td>" + if(gagnants[i]){ gagnants[i]["Joueurs"] } + "</td><td>" + if(perdants[i]){ perdants[i]["Joueurs"] } + "</td></tr>")
+                var gagnant = gagnants[i] ? gagnants[i]["Joueurs"] : "";
+                var perdant = perdants[i] ? perdants[i]["Joueurs"] : "";
+                $("#dernier_match tbody").append("<tr><td>" + gagnant + "</td><td>" + perdant + "</td></tr>")
             }
         }
 
