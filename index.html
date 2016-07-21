@@ -71,6 +71,10 @@
     });
 
     function callback(data) {
+        var last_date = _.last(_.keys(data[0]));
+        var result_from_last_date = _.map(data, function(d) { return d[last_date]; });
+        var has_next_date = !_.some(result_from_last_date, function(d) { return _.includes(["D", "V", "N1", "N2"], d); });
+
         var resultats = _.chain(data)
                 .map(function(d) {
                     var stats = _.chain(d).omit("Joueurs").values().groupBy().value();
@@ -83,7 +87,8 @@
                         nb_defaites: nb_defaites,
                         nb_nuls: nb_nuls,
                         points: nb_victoires*3 + nb_defaites*-3 + nb_nuls,
-                        historique: _.chain(d).omit("Joueurs").values().map(function(d) { return _.includes(["D", "V", "N1", "N2"], d) ? d : ""; }).value()
+                        historique: _.chain(d).omit("Joueurs").omit(has_next_date ? last_date : "").values()
+                            .map(function(d) { return _.includes(["D", "V", "N1", "N2"], d) ? d : ""; }).value()
                     };
                 })
                 .sortBy("nom")
@@ -97,7 +102,7 @@
         }));
 
         // Historique
-        var dates = _.chain(data[0]).omit("Joueurs").keys()
+        var dates = _.chain(data[0]).omit("Joueurs").omit(has_next_date ? last_date : "").keys()
                 .map(function(d) { return moment(d, "DD/MM/YYYY"); }).sortBy()
                 .map(function(d) { return d.format("DD/MM/YYYY"); }).value();
         $("#historique thead").html("<tr><th>Joueur</th>" + _.chain(dates).map(function(d) { return "<th>" + d + "</th>"; }).value() + "</tr>");
@@ -132,7 +137,7 @@
         }
 
         // Prochain match
-        var next_match = moment(previous_match, "DD/MM/YYYY").add(7, 'days').format("DD/MM/YYYY");
+        var next_match = has_next_date ? last_date : moment(previous_match, "DD/MM/YYYY").add(7, 'days').format("DD/MM/YYYY");
         $("#next_match").html(next_match);
 
     }
